@@ -1,5 +1,5 @@
-use std::thread;
 use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
 
 #[derive(Debug)]
 pub struct ThreadPool {
@@ -17,7 +17,7 @@ pub struct PoolCreationError {
 #[derive(Debug)]
 struct Worker {
     id: usize,
-    thread: thread::JoinHandle<()>
+    thread: thread::JoinHandle<()>,
 }
 
 impl Worker {
@@ -25,7 +25,7 @@ impl Worker {
         let thread = thread::spawn(move || {
             loop {
                 let job = receiver.lock().unwrap().recv().unwrap();
-                println!("worker {} got a job. executing...", id);
+                // println!("worker {} got a job. executing...", id);
                 job();
             }
         });
@@ -55,7 +55,9 @@ impl ThreadPool {
 
             Ok(ThreadPool { workers, sender })
         } else {
-            Err(PoolCreationError { message: "size must be greater than 0".to_string() })
+            Err(PoolCreationError {
+                message: "size must be greater than 0".to_string(),
+            })
         }
     }
     pub fn execute<F>(&self, f: F)
